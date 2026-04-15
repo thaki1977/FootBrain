@@ -1,0 +1,2009 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>フットブレイン | 脳科学でメンタルを可視化するサッカー選手診断</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@300;400;500;700;900&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   TOKENS & RESET
+═══════════════════════════════════════════ */
+:root {
+  --navy:     #080f1e;
+  --navy-mid: #0d1b3e;
+  --navy-light:#152448;
+  --cyan:     #00c8ff;
+  --cyan-dim: rgba(0,200,255,0.15);
+  --green:    #00e87a;
+  --orange:   #ff6b2b;
+  --white:    #ffffff;
+  --off-white:#e8eef8;
+  --muted:    rgba(232,238,248,0.5);
+  --border:   rgba(0,200,255,0.18);
+
+  --im: #1a6fff;
+  --rv: #00c853;
+  --nv: #ff6b2b;
+  --mt: #c040fb;
+
+  --ease-out: cubic-bezier(0.22,1,0.36,1);
+  --ease-spring: cubic-bezier(0.34,1.56,0.64,1);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: var(--navy);
+  color: var(--off-white);
+  overflow-x: hidden;
+  line-height: 1.7;
+}
+
+/* ═══════════════════════════════════════════
+   UTILITY
+═══════════════════════════════════════════ */
+.container { max-width: 1160px; margin: 0 auto; padding: 0 28px; }
+.section-en {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--cyan);
+  display: block;
+  margin-bottom: 12px;
+}
+.section-title {
+  font-size: clamp(26px, 4vw, 40px);
+  font-weight: 900;
+  line-height: 1.25;
+  color: var(--white);
+}
+.section-title span { color: var(--cyan); }
+.section-sub {
+  font-size: 15px;
+  color: var(--muted);
+  margin-top: 16px;
+  max-width: 560px;
+  line-height: 1.8;
+}
+
+/* reveal animation */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  padding: 0 28px;
+  height: 68px;
+  display: flex; align-items: center;
+  transition: background 0.4s ease, backdrop-filter 0.4s ease, box-shadow 0.4s ease;
+}
+.nav.scrolled {
+  background: rgba(8,15,30,0.92);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 1px 0 var(--border), 0 8px 32px rgba(0,0,0,0.4);
+}
+.nav-inner {
+  max-width: 1160px; margin: 0 auto; width: 100%;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none;
+}
+.nav-logo-mark {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--cyan), #006aff);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.nav-logo-text {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: var(--white);
+}
+.nav-logo-text span { color: var(--cyan); }
+.nav-links {
+  display: flex; align-items: center; gap: 32px;
+  list-style: none;
+}
+.nav-links a {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--white); }
+.nav-cta {
+  background: var(--cyan);
+  color: var(--navy) !important;
+  font-weight: 700 !important;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 13px !important;
+  transition: background 0.2s, transform 0.2s !important;
+}
+.nav-cta:hover { background: #00e5ff !important; transform: translateY(-1px); }
+
+/* ═══════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════ */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex; align-items: center;
+  overflow: hidden;
+  padding-top: 68px;
+}
+
+/* canvas background */
+#hero-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+
+/* geometric shapes */
+.hero-geo {
+  position: absolute; inset: 0; pointer-events: none;
+}
+.geo-circle-1 {
+  position: absolute;
+  right: -80px; top: 50%;
+  transform: translateY(-50%);
+  width: 640px; height: 640px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: radial-gradient(circle at 40% 40%, rgba(0,200,255,0.06) 0%, transparent 70%);
+  animation: rotateSlow 40s linear infinite;
+}
+.geo-circle-2 {
+  position: absolute;
+  right: 40px; top: 50%;
+  transform: translateY(-50%);
+  width: 480px; height: 480px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,200,255,0.08);
+  animation: rotateSlow 28s linear infinite reverse;
+}
+.geo-circle-3 {
+  position: absolute;
+  right: 160px; top: 50%;
+  transform: translateY(-50%);
+  width: 320px; height: 320px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,200,255,0.12);
+  background: radial-gradient(circle, rgba(0,200,255,0.04) 0%, transparent 70%);
+}
+.geo-line {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 55%;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, var(--border) 30%, var(--border) 70%, transparent);
+}
+.geo-dot {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--cyan);
+  animation: pulse 3s ease-in-out infinite;
+}
+.geo-dot-1 { width: 6px; height: 6px; right: 220px; top: 30%; animation-delay: 0s; }
+.geo-dot-2 { width: 4px; height: 4px; right: 360px; top: 60%; animation-delay: 1s; opacity: 0.6; }
+.geo-dot-3 { width: 8px; height: 8px; right: 140px; top: 70%; animation-delay: 2s; opacity: 0.4; }
+
+/* scan line */
+.hero-scan {
+  position: absolute;
+  left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  opacity: 0.3;
+  animation: scan 6s ease-in-out infinite;
+}
+
+@keyframes rotateSlow { to { transform: translateY(-50%) rotate(360deg); } }
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.6); }
+}
+@keyframes scan {
+  0% { top: 20%; opacity: 0; }
+  10% { opacity: 0.3; }
+  90% { opacity: 0.3; }
+  100% { top: 80%; opacity: 0; }
+}
+
+.hero-content {
+  position: relative; z-index: 2;
+  width: 100%;
+}
+.hero-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  min-height: calc(100vh - 68px);
+  padding: 80px 0;
+}
+
+.hero-left {}
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--cyan);
+  margin-bottom: 28px;
+  background: rgba(0,200,255,0.05);
+  animation: fadeInDown 1s var(--ease-out) 0.2s both;
+}
+.hero-eyebrow-dot {
+  width: 6px; height: 6px;
+  background: var(--cyan);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.hero-headline {
+  font-size: clamp(42px, 6vw, 72px);
+  font-weight: 900;
+  line-height: 1.1;
+  color: var(--white);
+  animation: fadeInUp 1s var(--ease-out) 0.4s both;
+}
+.hero-headline .accent {
+  color: var(--cyan);
+  position: relative;
+}
+.hero-headline .accent::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--cyan), transparent);
+  border-radius: 2px;
+}
+.hero-headline .sub-line {
+  font-size: clamp(28px, 4vw, 52px);
+  color: var(--off-white);
+  opacity: 0.7;
+  display: block;
+  margin-top: 4px;
+}
+
+.hero-sub {
+  font-size: 16px;
+  color: var(--muted);
+  margin-top: 28px;
+  line-height: 1.9;
+  max-width: 440px;
+  animation: fadeInUp 1s var(--ease-out) 0.6s both;
+}
+
+.hero-btns {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  margin-top: 40px;
+  animation: fadeInUp 1s var(--ease-out) 0.8s both;
+}
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--cyan);
+  color: var(--navy);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 14px 28px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 0 0 0 rgba(0,200,255,0.4);
+}
+.btn-primary:hover {
+  background: #00e5ff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,200,255,0.35);
+}
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--off-white);
+  font-weight: 500;
+  font-size: 14px;
+  padding: 14px 28px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.btn-secondary:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: rgba(0,200,255,0.05);
+}
+
+/* hero right — diagnostic card mockup */
+.hero-right {
+  display: flex; justify-content: center; align-items: center;
+  animation: fadeInRight 1.2s var(--ease-out) 0.5s both;
+}
+.hero-card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  background: rgba(13,27,62,0.8);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.hero-card::before {
+  content: '';
+  position: absolute; top: -1px; left: 20px; right: 20px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+}
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.card-title {
+  font-size: 12px; font-weight: 700;
+  color: var(--cyan); letter-spacing: 2px;
+}
+.card-badge {
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(0,200,255,0.1);
+  border: 1px solid var(--border);
+  color: var(--cyan);
+}
+.card-name {
+  font-size: 18px; font-weight: 900; color: var(--white);
+  margin-bottom: 4px;
+}
+.card-type {
+  font-size: 12px; color: var(--muted);
+  margin-bottom: 24px;
+}
+
+/* brain type bars */
+.brain-bars { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+.bar-item {}
+.bar-label {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px;
+}
+.bar-name {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 700; color: var(--off-white);
+}
+.bar-tag {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 14px;
+  padding: 1px 8px;
+  border-radius: 4px;
+  color: white;
+}
+.bar-tag.im { background: var(--im); }
+.bar-tag.rv { background: var(--rv); }
+.bar-tag.nv { background: var(--nv); }
+.bar-tag.mt { background: var(--mt); }
+.bar-pct { font-size: 14px; font-weight: 700; color: var(--white); }
+.bar-track {
+  height: 7px; background: rgba(255,255,255,0.06);
+  border-radius: 4px; overflow: hidden;
+}
+.bar-fill {
+  height: 100%; border-radius: 4px;
+  animation: barGrow 1.8s var(--ease-out) 1.2s both;
+}
+.bar-fill.im { background: linear-gradient(90deg, var(--im), #6aabff); width: 42%; }
+.bar-fill.rv { background: linear-gradient(90deg, var(--rv), #80ffc0); width: 28%; }
+.bar-fill.nv { background: linear-gradient(90deg, var(--nv), #ffaa80); width: 19%; }
+.bar-fill.mt { background: linear-gradient(90deg, var(--mt), #e080ff); width: 11%; }
+
+@keyframes barGrow { from { width: 0 !important; } }
+
+.card-footer {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+.card-mini {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+}
+.card-mini-label { font-size: 10px; color: var(--muted); margin-bottom: 4px; }
+.card-mini-val { font-size: 15px; font-weight: 700; color: var(--cyan); }
+
+/* scroll indicator */
+.hero-scroll {
+  position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  animation: fadeIn 1s var(--ease-out) 2s both;
+  z-index: 2;
+}
+.scroll-text { font-size: 10px; letter-spacing: 2px; color: var(--muted); }
+.scroll-line {
+  width: 1px; height: 40px;
+  background: linear-gradient(to bottom, var(--cyan), transparent);
+  animation: scrollDown 2s ease-in-out infinite;
+}
+@keyframes scrollDown {
+  0%, 100% { transform: scaleY(1); opacity: 1; }
+  50% { transform: scaleY(0.5); opacity: 0.4; }
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+
+/* ═══════════════════════════════════════════
+   TRUST BAR
+═══════════════════════════════════════════ */
+.trust {
+  padding: 0;
+  background: linear-gradient(90deg, rgba(0,200,255,0.08) 0%, rgba(0,200,255,0.04) 100%);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.trust-inner {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+}
+.trust-item {
+  padding: 28px 14px;
+  text-align: center;
+  border-right: 1px solid var(--border);
+  position: relative;
+}
+.trust-item:last-child { border-right: none; }
+.trust-category {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(0,200,255,0.1);
+  border: 1px solid var(--border);
+  color: var(--cyan);
+  margin-bottom: 8px;
+}
+.trust-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 38px;
+  line-height: 1;
+  color: var(--white);
+  margin-bottom: 4px;
+}
+.trust-num .unit { font-size: 18px; color: var(--cyan); }
+.trust-label { font-size: 11px; color: var(--muted); line-height: 1.5; }
+.trust-icon {
+  font-size: 36px;
+  line-height: 1;
+  margin: 6px 0 10px;
+}
+
+/* ═══════════════════════════════════════════
+   PROBLEM
+═══════════════════════════════════════════ */
+.problem {
+  padding: 120px 0;
+}
+.problem-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  margin-top: 64px;
+}
+.problem-cards { display: flex; flex-direction: column; gap: 16px; }
+.problem-card {
+  display: flex; gap: 20px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  transition: border-color 0.3s, background 0.3s, transform 0.3s;
+  cursor: default;
+}
+.problem-card:hover {
+  border-color: rgba(0,200,255,0.4);
+  background: rgba(0,200,255,0.04);
+  transform: translateX(6px);
+}
+.problem-icon {
+  font-size: 28px;
+  min-width: 44px;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding-top: 2px;
+}
+.problem-title {
+  font-size: 15px; font-weight: 700; color: var(--white);
+  margin-bottom: 6px;
+}
+.problem-body { font-size: 13px; color: var(--muted); line-height: 1.8; }
+
+.problem-right { position: relative; }
+.problem-solution {
+  background: linear-gradient(135deg, rgba(0,200,255,0.08), rgba(0,200,255,0.02));
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 48px 40px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.problem-solution::before {
+  content: '';
+  position: absolute; top: -1px; left: 20%; right: 20%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+}
+.solution-icon { font-size: 56px; margin-bottom: 20px; line-height: 1; }
+.solution-title {
+  font-size: 22px; font-weight: 900; color: var(--white); margin-bottom: 14px;
+}
+.solution-body { font-size: 14px; color: var(--muted); line-height: 1.9; }
+.solution-arrow {
+  position: absolute;
+  left: -1px; top: 50%; transform: translateY(-50%);
+  width: 0; height: 0;
+  border-top: 16px solid transparent;
+  border-bottom: 16px solid transparent;
+  border-left: 16px solid rgba(0,200,255,0.15);
+}
+
+/* ═══════════════════════════════════════════
+   FEATURES
+═══════════════════════════════════════════ */
+.features {
+  padding: 120px 0;
+  background: rgba(13,27,62,0.5);
+  position: relative;
+}
+.features::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(0,200,255,0.06) 0%, transparent 60%);
+}
+.features-header { text-align: center; margin-bottom: 72px; position: relative; }
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  position: relative;
+}
+.feature-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 36px 32px;
+  transition: border-color 0.3s, background 0.3s, transform 0.4s var(--ease-spring);
+  position: relative;
+  overflow: hidden;
+}
+.feature-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at top right, rgba(0,200,255,0.06) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.feature-card:hover {
+  border-color: rgba(0,200,255,0.35);
+  background: rgba(0,200,255,0.04);
+  transform: translateY(-8px);
+}
+.feature-card:hover::before { opacity: 1; }
+.feature-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 64px;
+  line-height: 1;
+  color: rgba(0,200,255,0.12);
+  position: absolute;
+  top: 20px; right: 24px;
+}
+.feature-icon {
+  font-size: 36px;
+  margin-bottom: 20px;
+  display: block;
+}
+.feature-title {
+  font-size: 18px; font-weight: 900; color: var(--white);
+  margin-bottom: 12px; line-height: 1.4;
+}
+.feature-body { font-size: 14px; color: var(--muted); line-height: 1.85; }
+.feature-tag {
+  display: inline-block;
+  margin-top: 20px;
+  font-size: 11px; font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(0,200,255,0.1);
+  border: 1px solid var(--border);
+  color: var(--cyan);
+  letter-spacing: 0.5px;
+}
+
+/* ═══════════════════════════════════════════
+   CONNECTIVITY
+═══════════════════════════════════════════ */
+.connectivity {
+  padding: 120px 0;
+  position: relative;
+  overflow: hidden;
+}
+.connectivity-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 80% 50%, rgba(26,111,255,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 50%, rgba(192,64,251,0.04) 0%, transparent 50%);
+}
+
+.conn-header {
+  margin-bottom: 64px;
+}
+.conn-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+.conn-card {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  transition: transform 0.4s var(--ease-spring), box-shadow 0.4s;
+}
+.conn-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+}
+.conn-head {
+  padding: 24px 28px;
+  display: flex; align-items: center; gap: 18px;
+}
+.conn-head.im { background: linear-gradient(135deg, rgba(26,111,255,0.3), rgba(26,111,255,0.1)); border-bottom: 1px solid rgba(26,111,255,0.3); }
+.conn-head.rv { background: linear-gradient(135deg, rgba(0,200,83,0.3), rgba(0,200,83,0.1)); border-bottom: 1px solid rgba(0,200,83,0.3); }
+.conn-head.nv { background: linear-gradient(135deg, rgba(255,107,43,0.3), rgba(255,107,43,0.1)); border-bottom: 1px solid rgba(255,107,43,0.3); }
+.conn-head.mt { background: linear-gradient(135deg, rgba(192,64,251,0.3), rgba(192,64,251,0.1)); border-bottom: 1px solid rgba(192,64,251,0.3); }
+
+.conn-badge {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 38px;
+  line-height: 1;
+  width: 60px; height: 60px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+}
+.conn-badge.im { background: var(--im); box-shadow: 0 4px 16px rgba(26,111,255,0.4); }
+.conn-badge.rv { background: var(--rv); box-shadow: 0 4px 16px rgba(0,200,83,0.4); }
+.conn-badge.nv { background: var(--nv); box-shadow: 0 4px 16px rgba(255,107,43,0.4); }
+.conn-badge.mt { background: var(--mt); box-shadow: 0 4px 16px rgba(192,64,251,0.4); }
+
+.conn-head-text {}
+.conn-network { font-size: 10px; color: var(--muted); letter-spacing: 1px; margin-bottom: 2px; }
+.conn-name { font-size: 17px; font-weight: 900; color: var(--white); }
+.conn-nickname {
+  font-size: 11px; color: var(--muted);
+  margin-top: 1px;
+}
+
+.conn-body {
+  background: rgba(8,15,30,0.6);
+  padding: 24px 28px;
+}
+.conn-traits {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-bottom: 16px;
+}
+.conn-trait {
+  font-size: 11px; font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
+}
+.conn-trait.im { background: rgba(26,111,255,0.15); color: #6aabff; border: 1px solid rgba(26,111,255,0.2); }
+.conn-trait.rv { background: rgba(0,200,83,0.15); color: #60e890; border: 1px solid rgba(0,200,83,0.2); }
+.conn-trait.nv { background: rgba(255,107,43,0.15); color: #ffaa80; border: 1px solid rgba(255,107,43,0.2); }
+.conn-trait.mt { background: rgba(192,64,251,0.15); color: #e080ff; border: 1px solid rgba(192,64,251,0.2); }
+
+.conn-desc { font-size: 13px; color: var(--muted); line-height: 1.8; margin-bottom: 16px; }
+.conn-word {
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  border-left: 3px solid;
+  font-size: 12px; color: var(--off-white); line-height: 1.7;
+}
+.conn-word.im { border-color: var(--im); }
+.conn-word.rv { border-color: var(--rv); }
+.conn-word.nv { border-color: var(--nv); }
+.conn-word.mt { border-color: var(--mt); }
+.conn-word-label { font-size: 10px; color: var(--muted); margin-bottom: 4px; letter-spacing: 1px; }
+
+.conn-note {
+  text-align: center;
+  margin-top: 48px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.02);
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+.conn-note strong { color: var(--cyan); }
+
+/* ═══════════════════════════════════════════
+   FLOW
+═══════════════════════════════════════════ */
+.flow {
+  padding: 120px 0;
+  background: rgba(13,27,62,0.4);
+  position: relative;
+}
+.flow-header { text-align: center; margin-bottom: 72px; }
+.flow-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  position: relative;
+}
+.flow-steps::before {
+  content: '';
+  position: absolute;
+  top: 36px; left: 12.5%; right: 12.5%;
+  height: 1px;
+  background: linear-gradient(90deg, var(--cyan) 0%, var(--cyan) 33%, rgba(0,200,255,0.3) 33%, rgba(0,200,255,0.3) 66%, rgba(0,200,255,0.1) 66%);
+  z-index: 0;
+}
+.flow-step {
+  position: relative; z-index: 1;
+  padding: 0 16px;
+  text-align: center;
+}
+.step-circle {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  margin: 0 auto 24px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  position: relative;
+}
+.step-circle::before {
+  content: '';
+  position: absolute; inset: -3px;
+  border-radius: 50%;
+  background: conic-gradient(var(--cyan) var(--pct, 100%), rgba(255,255,255,0.05) 0%);
+  z-index: -1;
+}
+.step-circle.s1 { background: linear-gradient(135deg, #0d1b3e, #152448); --pct: 100%; }
+.step-circle.s2 { background: linear-gradient(135deg, #0d1b3e, #152448); --pct: 66%; }
+.step-circle.s3 { background: linear-gradient(135deg, #0d1b3e, #152448); --pct: 33%; }
+.step-circle.s4 { background: linear-gradient(135deg, #0d1b3e, #152448); --pct: 10%; }
+.step-num-badge {
+  position: absolute; top: -4px; right: -4px;
+  width: 22px; height: 22px;
+  background: var(--cyan);
+  border-radius: 50%;
+  font-size: 11px; font-weight: 700;
+  color: var(--navy);
+  display: flex; align-items: center; justify-content: center;
+}
+.step-title { font-size: 15px; font-weight: 700; color: var(--white); margin-bottom: 10px; }
+.step-body { font-size: 13px; color: var(--muted); line-height: 1.8; }
+
+/* ═══════════════════════════════════════════
+   SUPERVISORS
+═══════════════════════════════════════════ */
+.supervisors {
+  padding: 100px 0;
+  position: relative;
+}
+.supervisors::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 100%, rgba(0,200,255,0.05) 0%, transparent 60%);
+}
+.supervisors-header { text-align: center; margin-bottom: 56px; }
+.supervisors-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  position: relative;
+}
+.supervisor-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px 18px;
+  text-align: center;
+  transition: border-color 0.3s, background 0.3s;
+}
+.supervisor-card:hover {
+  border-color: rgba(0,200,255,0.35);
+  background: rgba(0,200,255,0.03);
+}
+.supervisor-icon {
+  width: 52px; height: 52px;
+  background: linear-gradient(135deg, rgba(0,200,255,0.15), rgba(0,200,255,0.05));
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  margin: 0 auto 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.supervisor-name { font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+.supervisor-org { font-size: 10px; color: var(--muted); line-height: 1.5; }
+
+.journal-badge {
+  margin-top: 48px;
+  padding: 20px 28px;
+  background: rgba(0,200,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex; align-items: center; gap: 20px;
+  max-width: 640px; margin-left: auto; margin-right: auto;
+}
+.journal-icon { font-size: 32px; }
+.journal-text { font-size: 13px; color: var(--muted); line-height: 1.7; }
+.journal-text strong { color: var(--cyan); }
+
+/* ═══════════════════════════════════════════
+   VOICES
+═══════════════════════════════════════════ */
+.voices {
+  padding: 100px 0;
+  background: rgba(13,27,62,0.4);
+}
+.voices-header { text-align: center; margin-bottom: 56px; }
+.voices-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.voice-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.4s var(--ease-spring);
+}
+.voice-card:hover {
+  border-color: rgba(0,200,255,0.3);
+  transform: translateY(-6px);
+}
+.voice-img-wrap {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+.voice-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: brightness(0.85) saturate(1.1);
+  transition: transform 0.5s var(--ease-out);
+}
+.voice-card:hover .voice-img { transform: scale(1.05); }
+.voice-tag {
+  position: absolute;
+  bottom: 14px; left: 14px;
+  background: rgba(8,15,30,0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 12px; font-weight: 700;
+  color: var(--cyan);
+  padding: 4px 12px;
+  letter-spacing: 0.5px;
+}
+.voice-body {
+  padding: 22px 24px 26px;
+}
+.voice-stars { color: #ffd700; font-size: 13px; margin-bottom: 12px; }
+.voice-quote {
+  font-size: 13px; color: var(--off-white); line-height: 1.85;
+  padding-left: 14px;
+  border-left: 2px solid var(--cyan);
+  opacity: 0.88;
+}
+
+/* ═══════════════════════════════════════════
+   FAQ
+═══════════════════════════════════════════ */
+.faq {
+  padding: 100px 0;
+}
+.faq-header { text-align: center; margin-bottom: 56px; }
+.faq-list {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.faq-item {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+.faq-item.open { border-color: rgba(0,200,255,0.35); }
+.faq-q {
+  padding: 20px 24px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  cursor: pointer;
+  font-size: 15px; font-weight: 700; color: var(--white);
+  user-select: none;
+  transition: color 0.2s;
+}
+.faq-q:hover { color: var(--cyan); }
+.faq-chevron {
+  min-width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  font-size: 12px;
+  transition: transform 0.3s, background 0.3s;
+  color: var(--cyan);
+}
+.faq-item.open .faq-chevron { transform: rotate(180deg); background: rgba(0,200,255,0.1); }
+.faq-a {
+  padding: 0 24px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s var(--ease-out), padding 0.3s;
+  font-size: 14px; color: var(--muted); line-height: 1.85;
+}
+.faq-item.open .faq-a {
+  max-height: 300px;
+  padding: 0 24px 20px;
+}
+
+/* ═══════════════════════════════════════════
+   CTA
+═══════════════════════════════════════════ */
+.cta-section {
+  padding: 120px 0;
+  background: linear-gradient(180deg, transparent, rgba(0,200,255,0.04) 50%, transparent);
+  position: relative;
+  overflow: hidden;
+}
+.cta-section::before {
+  content: '';
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,200,255,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.cta-inner {
+  text-align: center;
+  position: relative; z-index: 1;
+}
+.cta-headline {
+  font-size: clamp(32px, 5vw, 54px);
+  font-weight: 900;
+  color: var(--white);
+  line-height: 1.25;
+  margin-bottom: 20px;
+}
+.cta-headline span { color: var(--cyan); }
+.cta-sub {
+  font-size: 16px; color: var(--muted);
+  max-width: 480px; margin: 0 auto 44px;
+  line-height: 1.85;
+}
+.cta-btns {
+  display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;
+}
+.btn-cta-primary {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--cyan);
+  color: var(--navy);
+  font-weight: 700; font-size: 16px;
+  padding: 18px 40px;
+  border-radius: 10px;
+  text-decoration: none;
+  box-shadow: 0 0 40px rgba(0,200,255,0.2);
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.btn-cta-primary:hover {
+  background: #00e5ff;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0,200,255,0.4);
+}
+.btn-cta-secondary {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--off-white);
+  font-weight: 500; font-size: 16px;
+  padding: 18px 40px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.btn-cta-secondary:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: rgba(0,200,255,0.05);
+}
+
+/* ═══════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════ */
+.footer {
+  padding: 64px 0 32px;
+  background: rgba(6,11,22,0.9);
+  border-top: 1px solid var(--border);
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 48px;
+  margin-bottom: 48px;
+}
+.footer-brand {}
+.footer-logo {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px;
+  text-decoration: none;
+}
+.footer-logo-mark {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--cyan), #006aff);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.footer-logo-text {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px; letter-spacing: 2px; color: var(--white);
+}
+.footer-logo-text span { color: var(--cyan); }
+.footer-desc { font-size: 12px; color: var(--muted); line-height: 1.8; max-width: 260px; }
+.footer-col-title {
+  font-size: 12px; font-weight: 700; color: var(--white);
+  letter-spacing: 1px; margin-bottom: 16px;
+}
+.footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.footer-links a {
+  font-size: 13px; color: var(--muted); text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--cyan); }
+.footer-bottom {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  font-size: 11px; color: var(--muted);
+}
+.footer-bottom a { color: var(--muted); text-decoration: none; }
+.footer-bottom a:hover { color: var(--cyan); }
+
+
+/* ═══════════════════════════════════════════
+   ANALYSTS
+═══════════════════════════════════════════ */
+.analysts {
+  padding: 100px 0;
+  background: rgba(13,27,62,0.4);
+  position: relative;
+}
+.analysts::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(0,200,255,0.05) 0%, transparent 60%);
+}
+.analysts-header { text-align: center; margin-bottom: 60px; }
+.analysts-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  position: relative;
+}
+.analyst-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.4s var(--ease-spring);
+}
+.analyst-card:hover {
+  border-color: rgba(0,200,255,0.4);
+  transform: translateY(-8px);
+}
+.analyst-card-top {
+  background: linear-gradient(135deg, rgba(0,200,255,0.12), rgba(0,200,255,0.04));
+  padding: 32px 20px 24px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.analyst-card-top::before {
+  content: '';
+  position: absolute; top: -1px; left: 20%; right: 20%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+}
+.analyst-avatar {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--navy-light), var(--navy-mid));
+  border: 2px solid var(--border);
+  margin: 0 auto 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px;
+  position: relative;
+}
+.analyst-avatar::after {
+  content: '';
+  position: absolute; inset: -4px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,200,255,0.2);
+}
+.analyst-name {
+  font-size: 18px; font-weight: 900;
+  color: var(--white);
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+.analyst-title {
+  display: inline-block;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 1px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(0,200,255,0.1);
+  border: 1px solid var(--border);
+  color: var(--cyan);
+}
+.analyst-body {
+  padding: 20px;
+}
+.analyst-field-label {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--cyan);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.analyst-field {
+  font-size: 13px;
+  color: var(--off-white);
+  line-height: 1.75;
+  padding-left: 12px;
+  border-left: 2px solid rgba(0,200,255,0.3);
+}
+
+@media (max-width: 900px) {
+  .analysts-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .analysts-grid { grid-template-columns: 1fr; }
+}
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .hero-inner { grid-template-columns: 1fr; padding: 60px 0; }
+  .hero-right { display: none; }
+  .trust-inner { grid-template-columns: repeat(3, 1fr); }
+  .trust-item:nth-child(3) { border-right: none; }
+  .trust-item:nth-child(4) { border-right: 1px solid var(--border); }
+  .problem-grid { grid-template-columns: 1fr; gap: 40px; }
+  .features-grid { grid-template-columns: 1fr; }
+  .conn-grid { grid-template-columns: 1fr; }
+  .flow-steps { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+  .flow-steps::before { display: none; }
+  .supervisors-grid { grid-template-columns: repeat(3, 1fr); }
+  .voices-grid { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .nav-links { display: none; }
+}
+@media (max-width: 600px) {
+  .trust-inner { grid-template-columns: repeat(2, 1fr) !important; }
+  .trust-item:nth-child(2) { border-right: none; }
+  .trust-item:nth-child(4) { border-right: none; }
+  .supervisors-grid { grid-template-columns: repeat(2, 1fr); }
+  .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+  .cta-btns { flex-direction: column; align-items: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAVIGATION ═══ -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-mark">🧠</div>
+      <div class="nav-logo-text">FOOT<span>BRAIN</span></div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#about">テストとは</a></li>
+      <li><a href="#types">4タイプ</a></li>
+      <li><a href="#flow">活用の流れ</a></li>
+      <li><a href="#faq">よくある質問</a></li>
+      <li><a href="#contact" class="nav-cta">▶ 資料を見る</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero" id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-geo">
+    <div class="geo-circle-1"></div>
+    <div class="geo-circle-2"></div>
+    <div class="geo-circle-3"></div>
+    <div class="geo-line"></div>
+    <div class="geo-dot geo-dot-1"></div>
+    <div class="geo-dot geo-dot-2"></div>
+    <div class="geo-dot geo-dot-3"></div>
+  </div>
+  <div class="hero-scan"></div>
+
+  <div class="hero-content container">
+    <div class="hero-inner">
+      <div class="hero-left">
+        <div class="hero-eyebrow">
+          <div class="hero-eyebrow-dot"></div>
+          BRAIN SCIENCE × FOOTBALL
+        </div>
+        <h1 class="hero-headline">
+          <span class="accent">メンタル</span>が、<br>
+          <span class="sub-line">数値で見える。</span>
+        </h1>
+        <p class="hero-sub">
+          フットブレインは、最新の脳科学に基づくサッカー選手診断ツールです。
+          4つの脳傾向性から「強み」「ポジション適性」「感覚タイプ」が
+          数値でわかり、科学的な指導が実現します。
+        </p>
+        <div class="hero-btns">
+          <a href="#about" class="btn-primary">
+            ▶ テストの内容を見る
+          </a>
+          <a href="#contact" class="btn-secondary">
+            📄 資料を無料でDL
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="hero-card">
+          <div class="card-header">
+            <span class="card-title">BRAIN REPORT</span>
+            <span class="card-badge">育成年代向け</span>
+          </div>
+          <div class="card-name">山田 太郎 選手</div>
+          <div class="card-type">タクティカル脳（IMコネクティビティ優位）</div>
+
+          <div class="brain-bars">
+            <div class="bar-item">
+              <div class="bar-label">
+                <div class="bar-name"><span class="bar-tag im">IM</span> タクティカル脳</div>
+                <span class="bar-pct">42%</span>
+              </div>
+              <div class="bar-track"><div class="bar-fill im"></div></div>
+            </div>
+            <div class="bar-item">
+              <div class="bar-label">
+                <div class="bar-name"><span class="bar-tag rv">RV</span> テクニカル脳</div>
+                <span class="bar-pct">28%</span>
+              </div>
+              <div class="bar-track"><div class="bar-fill rv"></div></div>
+            </div>
+            <div class="bar-item">
+              <div class="bar-label">
+                <div class="bar-name"><span class="bar-tag nv">NV</span> フィジカル脳</div>
+                <span class="bar-pct">19%</span>
+              </div>
+              <div class="bar-track"><div class="bar-fill nv"></div></div>
+            </div>
+            <div class="bar-item">
+              <div class="bar-label">
+                <div class="bar-name"><span class="bar-tag mt">MT</span> メンタル脳</div>
+                <span class="bar-pct">11%</span>
+              </div>
+              <div class="bar-track"><div class="bar-fill mt"></div></div>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <div class="card-mini">
+              <div class="card-mini-label">情動アクティブ度</div>
+              <div class="card-mini-val">68%</div>
+            </div>
+            <div class="card-mini">
+              <div class="card-mini-label">感情コントロール度</div>
+              <div class="card-mini-val">74%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-scroll">
+    <span class="scroll-text">SCROLL</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ═══ TRUST BAR ═══ -->
+<div class="trust">
+  <div class="trust-inner container">
+    <div class="trust-item reveal">
+      <div class="trust-category">J LEAGUE</div>
+      <div class="trust-icon">🏟️</div>
+      <div class="trust-label">Jリーグ</div>
+    </div>
+    <div class="trust-item reveal reveal-delay-1">
+      <div class="trust-category">F LEAGUE</div>
+      <div class="trust-icon">⚽</div>
+      <div class="trust-label">Fリーグ</div>
+    </div>
+    <div class="trust-item reveal reveal-delay-2">
+      <div class="trust-category">WOMEN'S</div>
+      <div class="trust-icon">👩</div>
+      <div class="trust-label">女子アマチュアチーム</div>
+    </div>
+    <div class="trust-item reveal reveal-delay-3">
+      <div class="trust-num"><span class="count" data-target="5">0</span><span class="unit">名</span></div>
+      <div class="trust-label">脳科学者が監修</div>
+    </div>
+    <div class="trust-item reveal reveal-delay-4">
+      <div class="trust-num"><span class="unit">学会</span></div>
+      <div class="trust-label">日本産業ストレス学会 発表済</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PROBLEM ═══ -->
+<section class="problem" id="about">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-en">THE CHALLENGE</span>
+      <h2 class="section-title">こんな悩み、<span>ありませんか？</span></h2>
+    </div>
+    <div class="problem-grid">
+      <div class="problem-cards">
+        <div class="problem-card reveal reveal-delay-1">
+          <div class="problem-icon">🤔</div>
+          <div>
+            <div class="problem-title">「メンタルの指導方法が、わからない」</div>
+            <div class="problem-body">フィジカルとテクニックは練習で向上できる。でもメンタルは「定義が曖昧」で、具体的な指導法がない。経験と勘に頼るしかないのが現状です。</div>
+          </div>
+        </div>
+        <div class="problem-card reveal reveal-delay-2">
+          <div class="problem-icon">👁️</div>
+          <div>
+            <div class="problem-title">「選手の内面の状態が、見えない」</div>
+            <div class="problem-body">試合前に緊張している選手、なぜかやる気が出ない選手……。何が原因なのか、どう声をかけるべきか、見た目だけでは判断できません。</div>
+          </div>
+        </div>
+        <div class="problem-card reveal reveal-delay-3">
+          <div class="problem-icon">💬</div>
+          <div>
+            <div class="problem-title">「声がけひとつで、反応が変わる」</div>
+            <div class="problem-body">同じ言葉をかけても、モチベーションが上がる選手と逆効果な選手がいる。個々に最適化された指導の言葉が見つかれば、チームは変わります。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="problem-right reveal reveal-delay-2">
+        <div class="problem-solution">
+          <div class="solution-icon">🧠⚽</div>
+          <div class="solution-title">フットブレインが、<br>すべて解決します</div>
+          <div class="solution-body">
+            最新の脳科学「コネクティビティ理論」に基づき、選手の脳の使い方を数値で可視化。
+            メンタルの曖昧さをなくし、根拠のある指導を実現します。
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ═══ -->
+<section class="features">
+  <div class="container" style="position:relative;">
+    <div class="features-header reveal">
+      <span class="section-en">WHAT YOU'LL DISCOVER</span>
+      <h2 class="section-title">フットブレインで<span>わかる</span>、3つのこと</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-num">01</div>
+        <span class="feature-icon">💪</span>
+        <div class="feature-title">普段の脳の使い方から、自分の「強み」がわかる</div>
+        <div class="feature-body">選手一人ひとりの脳には、得意な「使い方の傾向性」があります。フットブレインはその傾向性を数値で可視化し、選手固有の強みをデータで把握できます。感覚やカンではなく、脳科学的な根拠に基づいた強みの把握が可能です。</div>
+        <span class="feature-tag">強みの数値化</span>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-num">02</div>
+        <span class="feature-icon">📍</span>
+        <div class="feature-title">「強み」を活かせるポジションがわかる</div>
+        <div class="feature-body">戦術的な視野が広い選手、技術の細部に強い選手、チームを盛り上げる選手、仲間を支える選手——脳のタイプは、サッカーのポジション適性と深く結びついています。データに基づく配置でチームのパフォーマンスが変わります。</div>
+        <span class="feature-tag">ポジション適性</span>
+      </div>
+      <div class="feature-card reveal reveal-delay-3">
+        <div class="feature-num">03</div>
+        <span class="feature-icon">👁️</span>
+        <div class="feature-title">脳が反応しやすい「感覚タイプ」がわかる</div>
+        <div class="feature-body">「見て覚える選手」「話を聞いて理解する選手」「やってみて感じる選手」——学習の入り口が違えば、指導の言葉も変わります。感覚タイプを知ることで、個別に最適化された指導が実現します。</div>
+        <span class="feature-tag">感覚タイプ</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CONNECTIVITY ═══ -->
+<section class="connectivity" id="types">
+  <div class="connectivity-bg"></div>
+  <div class="container" style="position:relative;">
+    <div class="conn-header reveal">
+      <span class="section-en">BRAIN CONNECTIVITY TYPES</span>
+      <h2 class="section-title">4つの<span>脳傾向性</span>タイプ</h2>
+      <p class="section-sub">最新の脳科学研究で解明された「コネクティビティ（脳ネットワーク）」をもとに、選手の脳の傾向性を4タイプに分類します。どのタイプにも固有の強みがあり、優劣はありません。</p>
+    </div>
+
+    <div class="conn-grid">
+      <div class="conn-card reveal reveal-delay-1">
+        <div class="conn-head im">
+          <div class="conn-badge im">IM</div>
+          <div class="conn-head-text">
+            <div class="conn-network">MENTALIZING NETWORK</div>
+            <div class="conn-name">タクティカル脳（戦術脳）</div>
+            <div class="conn-nickname">合理的 × 協調的なリーダータイプ</div>
+          </div>
+        </div>
+        <div class="conn-body">
+          <div class="conn-traits">
+            <span class="conn-trait im">合理的</span>
+            <span class="conn-trait im">協調性</span>
+            <span class="conn-trait im">リーダー的</span>
+            <span class="conn-trait im">計画性</span>
+            <span class="conn-trait im">全体視野</span>
+          </div>
+          <div class="conn-desc">チーム全体を俯瞰して考えるタイプ。戦略・連携・リーダーシップを発揮しやすく、全体のまとめ役や司令塔的なポジションに向いています。段階的な達成目標を示すことでモチベーションが持続します。</div>
+          <div class="conn-word im">
+            <div class="conn-word-label">💬 効果的な声がけ</div>
+            「チームのために」「みんなで達成しよう」
+          </div>
+        </div>
+      </div>
+
+      <div class="conn-card reveal reveal-delay-2">
+        <div class="conn-head rv">
+          <div class="conn-badge rv">RV</div>
+          <div class="conn-head-text">
+            <div class="conn-network">CENTRAL EXECUTIVE NETWORK</div>
+            <div class="conn-name">テクニカル脳（技術脳）</div>
+            <div class="conn-nickname">職人的 × 原理的な探究タイプ</div>
+          </div>
+        </div>
+        <div class="conn-body">
+          <div class="conn-traits">
+            <span class="conn-trait rv">職人的</span>
+            <span class="conn-trait rv">原理原則</span>
+            <span class="conn-trait rv">発想力</span>
+            <span class="conn-trait rv">こだわり</span>
+            <span class="conn-trait rv">専門性</span>
+          </div>
+          <div class="conn-desc">細部への意識とこだわりが強く、技術を徹底的に磨くタイプ。自分のペースで専門性を高めることに長けており、具体的な数値目標を設定することでモチベーションが持続します。</div>
+          <div class="conn-word rv">
+            <div class="conn-word-label">💬 効果的な声がけ</div>
+            「この技術を身につけるぞ」「目の前の課題をクリアするぞ」
+          </div>
+        </div>
+      </div>
+
+      <div class="conn-card reveal reveal-delay-1">
+        <div class="conn-head nv">
+          <div class="conn-badge nv">NV</div>
+          <div class="conn-head-text">
+            <div class="conn-network">REWARD NETWORK</div>
+            <div class="conn-name">フィジカル脳（身体脳）</div>
+            <div class="conn-nickname">外交的 × 拡大的な表現タイプ</div>
+          </div>
+        </div>
+        <div class="conn-body">
+          <div class="conn-traits">
+            <span class="conn-trait nv">外交的</span>
+            <span class="conn-trait nv">表現力</span>
+            <span class="conn-trait nv">挑戦志向</span>
+            <span class="conn-trait nv">存在感</span>
+            <span class="conn-trait nv">行動力</span>
+          </div>
+          <div class="conn-desc">エネルギッシュで自己表現が得意なタイプ。グループの中で褒めることでさらにモチベーションが上がります。チームを盛り上げ、注目を集める場面でパフォーマンスが発揮されます。</div>
+          <div class="conn-word nv">
+            <div class="conn-word-label">💬 効果的な声がけ</div>
+            「世界に見せてやるぞ」「俺は最強だ」「スターになろう」
+          </div>
+        </div>
+      </div>
+
+      <div class="conn-card reveal reveal-delay-2">
+        <div class="conn-head mt">
+          <div class="conn-badge mt">MT</div>
+          <div class="conn-head-text">
+            <div class="conn-network">EMOTIONAL NETWORK</div>
+            <div class="conn-name">メンタル脳（精神脳）</div>
+            <div class="conn-nickname">温情的 × 調和的な絆タイプ</div>
+          </div>
+        </div>
+        <div class="conn-body">
+          <div class="conn-traits">
+            <span class="conn-trait mt">温情的</span>
+            <span class="conn-trait mt">調和性</span>
+            <span class="conn-trait mt">利他的</span>
+            <span class="conn-trait mt">絆重視</span>
+            <span class="conn-trait mt">思いやり</span>
+          </div>
+          <div class="conn-desc">目の前の仲間や大切な人のために動けるタイプ。「誰かのために」という動機が最大の原動力になります。チームの絆を深め、心の支えになる存在として輝きます。</div>
+          <div class="conn-word mt">
+            <div class="conn-word-label">💬 効果的な声がけ</div>
+            「お母さんのために」「仲間のために頑張ろう」「恩師のために」
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="conn-note reveal">
+      <strong>4つのタイプに優劣はありません。</strong>
+      フットブレインは「今の脳の使い方の傾向性」を数値化するツールです。
+      どのタイプにも固有の強みがあります。診断は選手の可能性を引き出すための出発点です。
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FLOW ═══ -->
+<section class="flow" id="flow">
+  <div class="container">
+    <div class="flow-header reveal">
+      <span class="section-en">HOW TO START</span>
+      <h2 class="section-title">導入から活用まで、<span>4ステップ</span></h2>
+    </div>
+    <div class="flow-steps">
+      <div class="flow-step reveal reveal-delay-1">
+        <div class="step-circle s1">
+          <span style="font-size:26px;">📝</span>
+          <div class="step-num-badge">1</div>
+        </div>
+        <div class="step-title">テスト実施</div>
+        <div class="step-body">オンラインで約30分。育成年代・一般向けの3種類を用意。スマートフォンでも受診可能。</div>
+      </div>
+      <div class="flow-step reveal reveal-delay-2">
+        <div class="step-circle s2">
+          <span style="font-size:26px;">📊</span>
+          <div class="step-num-badge">2</div>
+        </div>
+        <div class="step-title">レポート出力</div>
+        <div class="step-body">回答完了後すぐに結果・説明・解説シートをPDFで自動出力。数値とグラフで一目瞭然。</div>
+      </div>
+      <div class="flow-step reveal reveal-delay-3">
+        <div class="step-circle s3">
+          <span style="font-size:26px;">🔍</span>
+          <div class="step-num-badge">3</div>
+        </div>
+        <div class="step-title">アナリストが解説</div>
+        <div class="step-body">フットブレインアナリストが数値を分析・解説。選手の強みと指導の方向性を整理します。</div>
+      </div>
+      <div class="flow-step reveal reveal-delay-4">
+        <div class="step-circle s4">
+          <span style="font-size:26px;">🏆</span>
+          <div class="step-num-badge">4</div>
+        </div>
+        <div class="step-title">指導・育成に活用</div>
+        <div class="step-body">声がけ・ポジション選定・練習設計に活用。選手の自己肯定感が高まり、メンタルが強化。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SUPERVISORS ═══ -->
+<section class="supervisors">
+  <div class="container" style="position:relative;">
+    <div class="supervisors-header reveal">
+      <span class="section-en">ACADEMIC SUPERVISORS</span>
+      <h2 class="section-title">現役の<span>脳科学者</span>が監修</h2>
+      <p class="section-sub" style="margin: 16px auto 0; text-align:center;">日進月歩で進む最先端の脳科学研究を取り込みながら、常に診断精度を高め続けています。</p>
+    </div>
+    <div class="supervisors-grid">
+      <div class="supervisor-card reveal reveal-delay-1">
+        <div class="supervisor-icon">🎓</div>
+        <div class="supervisor-name">嶋田 総太郎 教授</div>
+        <div class="supervisor-org">明治大学 理工学部<br>認知脳科学研究室</div>
+      </div>
+      <div class="supervisor-card reveal reveal-delay-2">
+        <div class="supervisor-icon">🎓</div>
+        <div class="supervisor-name">酒井 邦嘉 教授</div>
+        <div class="supervisor-org">東京大学<br>大学院総合文化研究科</div>
+      </div>
+      <div class="supervisor-card reveal reveal-delay-3">
+        <div class="supervisor-icon">🎓</div>
+        <div class="supervisor-name">杉山 崇 教授</div>
+        <div class="supervisor-org">神奈川大学<br>人間科学部 心理相談センター所長</div>
+      </div>
+      <div class="supervisor-card reveal reveal-delay-1">
+        <div class="supervisor-icon">🏥</div>
+        <div class="supervisor-name">金 三雄 先生</div>
+        <div class="supervisor-org">脳神経外科学会専門医<br>ゆうあい内科・脳神経クリニック</div>
+      </div>
+      <div class="supervisor-card reveal reveal-delay-2">
+        <div class="supervisor-icon">🔬</div>
+        <div class="supervisor-name">増尾 好則 先生</div>
+        <div class="supervisor-org">Ph.D 神経科学<br>博士（医学）</div>
+      </div>
+    </div>
+    <div class="journal-badge reveal">
+      <div class="journal-icon">📋</div>
+      <div class="journal-text"><strong>日本産業ストレス学会</strong> にて学会発表済み（2020年12月）。「脳傾向性診断ブレインアナリシスに関して」として論文発表し、科学的妥当性を公表しています。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ANALYSTS ═══ -->
+<section class="analysts">
+  <div class="container" style="position:relative;">
+    <div class="analysts-header reveal">
+      <span class="section-en">BRAIN MENTALISTS</span>
+      <h2 class="section-title">ブレイン<span>メンタリスト</span></h2>
+      <p class="section-sub" style="margin: 16px auto 0; text-align:center;">脳傾向性診断の専門家が、選手一人ひとりの結果を丁寧に分析・解説します。</p>
+    </div>
+    <div class="analysts-grid">
+
+      <div class="analyst-card reveal reveal-delay-1">
+        <div class="analyst-card-top">
+          <div class="analyst-avatar">🧠</div>
+          <div class="analyst-name">坂本 陽</div>
+          <span class="analyst-title">可能性アカデミー教育本部部長</span>
+        </div>
+        <div class="analyst-body">
+          <div class="analyst-field-label">得意分野</div>
+          <div class="analyst-field">脳大成理論に基づくメンタル指導</div>
+        </div>
+      </div>
+
+      <div class="analyst-card reveal reveal-delay-2">
+        <div class="analyst-card-top">
+          <div class="analyst-avatar">⚽</div>
+          <div class="analyst-name">竹元 和明</div>
+          <span class="analyst-title">フットブレインメンタリストプロ</span>
+        </div>
+        <div class="analyst-body">
+          <div class="analyst-field-label">得意分野</div>
+          <div class="analyst-field">ケガをしない体づくりとメンタル指導、ゴールキーパ理論伝導者</div>
+        </div>
+      </div>
+
+      <div class="analyst-card reveal reveal-delay-3">
+        <div class="analyst-card-top">
+          <div class="analyst-avatar">💪</div>
+          <div class="analyst-name">馬場 俊幸</div>
+          <span class="analyst-title">フットブレインメンタリスト</span>
+        </div>
+        <div class="analyst-body">
+          <div class="analyst-field-label">得意分野</div>
+          <div class="analyst-field">メンタルトレーニングによるサッカー選手育成</div>
+        </div>
+      </div>
+
+      <div class="analyst-card reveal reveal-delay-4">
+        <div class="analyst-card-top">
+          <div class="analyst-avatar">🏃</div>
+          <div class="analyst-name">蹴球 太郎</div>
+          <span class="analyst-title">フットブレインメンタリスト</span>
+        </div>
+        <div class="analyst-body">
+          <div class="analyst-field-label">得意分野</div>
+          <div class="analyst-field">フィジカルとメンタルトレーニングの融合による選手育成</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ VOICES ═══ -->
+<section class="voices">
+  <div class="container">
+    <div class="voices-header reveal">
+      <span class="section-en">VOICES</span>
+      <h2 class="section-title">指導者・保護者・<span>選手からの声</span></h2>
+    </div>
+    <div class="voices-grid">
+      <div class="voice-card reveal reveal-delay-1">
+        <div class="voice-img-wrap">
+          <img src="https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&q=80" alt="ケガからの復帰" class="voice-img">
+          <span class="voice-tag">ケガからの復帰</span>
+        </div>
+        <div class="voice-body">
+          <div class="voice-stars">★★★★★</div>
+          <div class="voice-quote">「ケガをしてから、どこか自分を責めていました。でも、この診断とカウンセリングを通じて、"自分が今、チームのためにやろうとしていることこそ、本当にやりたいことなんだ"って気づけたんです。そこからは、心がスッと軽くなって、前よりもっとチームに関われるようになりました。」</div>
+        </div>
+      </div>
+      <div class="voice-card reveal reveal-delay-2">
+        <div class="voice-img-wrap">
+          <img src="https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=600&q=80" alt="ポジション迷子" class="voice-img">
+          <span class="voice-tag">ポジション迷子</span>
+        </div>
+        <div class="voice-body">
+          <div class="voice-stars">★★★★★</div>
+          <div class="voice-quote">「ずっと希望していたポジションで失敗続き...。『自分は向いてないのかも』と落ち込んでいた時に、脳の診断を受けました。結果、自分に合ったプレースタイルが見えてきて、どう考えて、どう動けばよいのかが明確になったんです。プレーへの考え方も変わって、今はすごく前向きです！」</div>
+        </div>
+      </div>
+      <div class="voice-card reveal reveal-delay-3">
+        <div class="voice-img-wrap">
+          <img src="https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=600&q=80" alt="サッカーコーチ" class="voice-img">
+          <span class="voice-tag">サッカーコーチ</span>
+        </div>
+        <div class="voice-body">
+          <div class="voice-stars">★★★★★</div>
+          <div class="voice-quote">「子どもたちが無意識にやっている行動や反応が"数値"で表れたことに驚きました。これまで感覚でしか捉えられなかった"個性"や"考え方のクセ"が見えることで、指導の迷いが減ったんです。自分がどんな指導をしていたかも客観的に理解できて、チーム全体の育成方針にも活かせると思います。」</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FAQ ═══ -->
+<section class="faq" id="faq">
+  <div class="container">
+    <div class="faq-header reveal">
+      <span class="section-en">FAQ</span>
+      <h2 class="section-title">よくある<span>質問</span></h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item reveal reveal-delay-1">
+        <div class="faq-q">一般的な性格診断と何が違うのですか？<span class="faq-chevron">▾</span></div>
+        <div class="faq-a">フットブレインは最新の脳科学「コネクティビティ理論」を採用し、現役の大学教授・脳神経外科医・神経科学博士による学術監修のもと開発されています。約400問以上の設問プールからランダム出題されるため、繰り返し診断しても慣れによる偏りが生じにくく、診断精度を保ちます。他社のテストとは異なり、日進月歩の脳科学研究に現役で携わる専門家が監修している点が最大の特徴です。</div>
+      </div>
+      <div class="faq-item reveal reveal-delay-2">
+        <div class="faq-q">育成年代の子どもでも受けられますか？<span class="faq-chevron">▾</span></div>
+        <div class="faq-a">はい。小学校高学年（10〜12歳）向け、中高生（13〜18歳）向け、一般成人（19歳以上）向けの3種類があります。年齢に応じた設問内容と解説が用意されており、育成年代の選手にも安心してご利用いただけます。</div>
+      </div>
+      <div class="faq-item reveal reveal-delay-3">
+        <div class="faq-q">結果が「低い」数値の選手がいたら、どうすればよいですか？<span class="faq-chevron">▾</span></div>
+        <div class="faq-a">フットブレインはIQテストのように優劣を判断するものではありません。「今の脳の使い方の傾向性」を数値化するツールです。どのタイプにも強みがあり、低い数値は「弱点」ではなく「今はそこに意識が向きにくい」という傾向にすぎません。選手の自己肯定感を高め、強みを活かす指導を行うことが目的です。</div>
+      </div>
+      <div class="faq-item reveal reveal-delay-1">
+        <div class="faq-q">チーム全体に一括で導入できますか？<span class="faq-chevron">▾</span></div>
+        <div class="faq-a">はい、チーム・スクール単位での一括導入にも対応しています。診断実施から結果の解説まで、フットブレインアナリストがサポートします。詳しくはお問い合わせページよりご連絡ください。</div>
+      </div>
+      <div class="faq-item reveal reveal-delay-2">
+        <div class="faq-q">テストは何度でも受けられますか？<span class="faq-chevron">▾</span></div>
+        <div class="faq-a">脳の傾向性は経験や環境で変化するため、定期的な診断が推奨されます。ただし、再診断は前回から最短でも3ヶ月以上あけてください。半年〜1年に一度の定期診断が理想的です。また、診断のIDとパスワードでログインすれば、過去の結果をいつでも確認できます。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section class="cta-section" id="contact">
+  <div class="container">
+    <div class="cta-inner reveal">
+      <h2 class="cta-headline">
+        選手の脳を知ることが、<br>
+        <span>最強の指導</span>への第一歩です。
+      </h2>
+      <p class="cta-sub">まずは資料をご覧ください。フットブレインの全容を無料でご確認いただけます。</p>
+      <div class="cta-btns">
+        <a href="#" class="btn-cta-primary">📄 資料を無料でダウンロードする</a>
+        <a href="#" class="btn-cta-secondary">✉️ お問い合わせ・ご相談</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="footer-logo">
+          <div class="footer-logo-mark">🧠</div>
+          <div class="footer-logo-text">FOOT<span>BRAIN</span></div>
+        </a>
+        <div class="footer-desc">
+          フットブレインは、一般社団法人ブレインアナリスト協会が監修する
+          脳傾向性診断をサッカー指導に応用したサービスです。
+          現役の脳科学者・大学教授・医師による学術監修のもと、
+          選手のメンタルを数値で可視化し、科学的な指導をサポートします。
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">サービス</div>
+        <ul class="footer-links">
+          <li><a href="#">フットブレインとは</a></li>
+          <li><a href="#">4つのタイプ</a></li>
+          <li><a href="#">活用事例</a></li>
+          <li><a href="#">料金・お申し込み</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">資格・講座</div>
+        <ul class="footer-links">
+          <li><a href="#">アナリスト資格とは</a></li>
+          <li><a href="#">講座内容</a></li>
+          <li><a href="#">受講の流れ</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">サポート</div>
+        <ul class="footer-links">
+          <li><a href="#">よくある質問</a></li>
+          <li><a href="#">お問い合わせ</a></li>
+          <li><a href="#">ブレインアナリスト協会</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>©2024 Brain Analyst Association. All rights reserved.</span>
+      <div style="display:flex;gap:20px;">
+        <a href="#">プライバシーポリシー</a>
+        <a href="#">利用規約</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════
+   JAVASCRIPT
+═══════════════════════════════════════════ -->
+<script>
+/* ── NAV scroll ── */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 40);
+}, { passive: true });
+
+/* ── Intersection Observer for reveals ── */
+const revealEls = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+revealEls.forEach(el => observer.observe(el));
+
+/* ── Counter animation ── */
+const countEls = document.querySelectorAll('.count');
+const countObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const el = e.target;
+      const target = parseInt(el.dataset.target);
+      const duration = 1800;
+      const start = performance.now();
+      const update = (now) => {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(eased * target).toLocaleString();
+        if (progress < 1) requestAnimationFrame(update);
+      };
+      requestAnimationFrame(update);
+      countObserver.unobserve(el);
+    }
+  });
+}, { threshold: 0.5 });
+countEls.forEach(el => countObserver.observe(el));
+
+/* ── FAQ accordion ── */
+document.querySelectorAll('.faq-q').forEach(q => {
+  q.addEventListener('click', () => {
+    const item = q.parentElement;
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  });
+});
+
+/* ── Hero Canvas: floating network nodes ── */
+const canvas = document.getElementById('hero-canvas');
+const ctx = canvas.getContext('2d');
+let nodes = [];
+
+function resize() {
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+function initNodes() {
+  nodes = [];
+  const count = Math.floor((canvas.width * canvas.height) / 22000);
+  for (let i = 0; i < count; i++) {
+    nodes.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      r: Math.random() * 2 + 1,
+      opacity: Math.random() * 0.5 + 0.1
+    });
+  }
+}
+initNodes();
+
+function drawNetwork() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const maxDist = 160;
+
+  nodes.forEach(n => {
+    n.x += n.vx;
+    n.y += n.vy;
+    if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
+    if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+  });
+
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const dx = nodes[i].x - nodes[j].x;
+      const dy = nodes[i].y - nodes[j].y;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      if (d < maxDist) {
+        ctx.beginPath();
+        ctx.moveTo(nodes[i].x, nodes[i].y);
+        ctx.lineTo(nodes[j].x, nodes[j].y);
+        ctx.strokeStyle = `rgba(0,200,255,${0.06 * (1 - d / maxDist)})`;
+        ctx.lineWidth = 0.6;
+        ctx.stroke();
+      }
+    }
+  }
+
+  nodes.forEach(n => {
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(0,200,255,${n.opacity})`;
+    ctx.fill();
+  });
+
+  requestAnimationFrame(drawNetwork);
+}
+drawNetwork();
+</script>
+</body>
+</html>
