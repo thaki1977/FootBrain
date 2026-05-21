@@ -153,6 +153,9 @@ body {
   display: flex; align-items: center;
   overflow: hidden;
   padding-top: 68px;
+  background:
+    radial-gradient(ellipse at top, rgba(0,200,255,0.06) 0%, transparent 50%),
+    linear-gradient(180deg, #050a14 0%, #080f1e 70%, #0a1428 100%);
 }
 
 /* canvas background */
@@ -166,40 +169,52 @@ body {
 .hero-geo {
   position: absolute; inset: 0; pointer-events: none;
 }
-.geo-circle-1 {
+/* ─── サッカーピッチ ─── */
+.pitch-svg {
   position: absolute;
-  right: -80px; top: 50%;
-  transform: translateY(-50%);
-  width: 640px; height: 640px;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  background: radial-gradient(circle at 40% 40%, rgba(0,200,255,0.06) 0%, transparent 70%);
-  animation: rotateSlow 40s linear infinite;
+  bottom: 0; left: 0;
+  width: 100%; height: 65%;
+  pointer-events: none;
+  opacity: 0.9;
 }
-.geo-circle-2 {
+/* ─── スタジアム照明 ─── */
+.stadium-light {
   position: absolute;
-  right: 40px; top: 50%;
-  transform: translateY(-50%);
-  width: 480px; height: 480px;
-  border-radius: 50%;
-  border: 1px solid rgba(0,200,255,0.08);
-  animation: rotateSlow 28s linear infinite reverse;
+  top: -100px;
+  width: 400px; height: 600px;
+  background: radial-gradient(ellipse 200px 600px at center top, rgba(0,200,255,0.12) 0%, transparent 70%);
+  pointer-events: none;
 }
-.geo-circle-3 {
-  position: absolute;
-  right: 160px; top: 50%;
-  transform: translateY(-50%);
-  width: 320px; height: 320px;
-  border-radius: 50%;
-  border: 1px solid rgba(0,200,255,0.12);
-  background: radial-gradient(circle, rgba(0,200,255,0.04) 0%, transparent 70%);
+.light-1 { left: 10%; animation: lightFlicker 8s ease-in-out infinite; }
+.light-2 { left: 45%; animation: lightFlicker 8s ease-in-out infinite 2s; }
+.light-3 { left: 80%; animation: lightFlicker 8s ease-in-out infinite 4s; }
+@keyframes lightFlicker {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
 }
-.geo-line {
+/* ─── 巨大サッカーボール ─── */
+.big-ball {
   position: absolute;
-  top: 0; bottom: 0;
-  left: 55%;
-  width: 1px;
-  background: linear-gradient(to bottom, transparent, var(--border) 30%, var(--border) 70%, transparent);
+  right: -120px;
+  top: 12%;
+  width: 380px; height: 380px;
+  opacity: 0.08;
+  filter: drop-shadow(0 0 40px rgba(0,200,255,0.3));
+  animation: ballRotate 30s linear infinite;
+}
+.big-ball svg { width: 100%; height: 100%; }
+@keyframes ballRotate {
+  to { transform: rotate(360deg); }
+}
+/* ─── ゴールネット ─── */
+.goal-net {
+  position: absolute;
+  left: -30px;
+  top: 18%;
+  width: 280px;
+  height: 200px;
+  opacity: 0.6;
+  pointer-events: none;
 }
 .geo-dot {
   position: absolute;
@@ -1341,6 +1356,153 @@ body {
 @media (max-width: 600px) {
   .analysts-grid { grid-template-columns: 1fr; }
 }
+
+
+/* セクションタイトル横のサッカーボール装飾 */
+.section-title::before {
+  content: '';
+  display: inline-block;
+  width: 16px; height: 16px;
+  margin-right: 12px;
+  background: radial-gradient(circle at 35% 30%, white, #b0c0d0);
+  border-radius: 50%;
+  vertical-align: middle;
+  box-shadow: 0 0 12px rgba(0,200,255,0.5);
+  position: relative;
+  top: -3px;
+}
+
+/* CTA セクションにスタジアム雰囲気 */
+.cta-section {
+  position: relative;
+  overflow: hidden;
+}
+.cta-section::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 200px;
+  background: 
+    repeating-linear-gradient(90deg, 
+      rgba(0,200,255,0.04) 0,
+      rgba(0,200,255,0.04) 40px,
+      rgba(0,232,122,0.04) 40px,
+      rgba(0,232,122,0.04) 80px);
+  opacity: 0.6;
+  pointer-events: none;
+  mask: linear-gradient(to top, black, transparent);
+  -webkit-mask: linear-gradient(to top, black, transparent);
+}
+
+/* スコアボード風の装飾要素 (オプション) */
+.field-marker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  background: rgba(0,232,122,0.1);
+  border: 1px solid rgba(0,232,122,0.3);
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #00e87a;
+  letter-spacing: 1px;
+}
+
+/* ─── サッカー装飾要素 ─── */
+.field-divider {
+  position: relative;
+  height: 4px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(0,200,255,0.3) 20%,
+    rgba(0,232,122,0.3) 50%,
+    rgba(0,200,255,0.3) 80%,
+    transparent 100%);
+  margin: 0;
+}
+.field-divider::before {
+  content: '';
+  position: absolute;
+  top: -8px; left: 50%;
+  transform: translateX(-50%);
+  width: 20px; height: 20px;
+  background: radial-gradient(circle at 35% 30%, white, #b0c0d0);
+  border-radius: 50%;
+  border: 1px solid rgba(13,27,62,0.5);
+  box-shadow: 0 0 16px rgba(0,200,255,0.4);
+}
+.field-divider::after {
+  content: '';
+  position: absolute;
+  top: -7px; left: 50%;
+  transform: translateX(-50%);
+  width: 12px; height: 12px;
+  background:
+    linear-gradient(to right, transparent 45%, #0d1b3e 45%, #0d1b3e 55%, transparent 55%),
+    linear-gradient(to bottom, transparent 45%, #0d1b3e 45%, #0d1b3e 55%, transparent 55%);
+  background-position: center;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* ピッチストライプ背景（複数セクション共通） */
+.section-with-stripes {
+  position: relative;
+}
+.section-with-stripes::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0,
+    transparent 80px,
+    rgba(0,200,255,0.015) 80px,
+    rgba(0,200,255,0.015) 160px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 小さなサッカーボールアクセント */
+.mini-ball-accent {
+  display: inline-block;
+  width: 18px; height: 18px;
+  vertical-align: middle;
+  margin-right: 8px;
+  background:
+    radial-gradient(circle at 35% 30%, white, #b0c0d0);
+  border-radius: 50%;
+  position: relative;
+  box-shadow: 0 0 8px rgba(0,200,255,0.4);
+}
+.mini-ball-accent::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  background:
+    linear-gradient(to right, transparent 45%, #0d1b3e 45%, #0d1b3e 55%, transparent 55%),
+    linear-gradient(to bottom, transparent 45%, #0d1b3e 45%, #0d1b3e 55%, transparent 55%);
+  border-radius: 50%;
+}
+
+/* セクションヘッダー横の装飾 */
+.section-en {
+  position: relative;
+}
+
+/* ホイッスル風アクセント */
+@keyframes ball-roll {
+  0% { transform: translateX(-20px) rotate(0deg); opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { transform: translateX(20px) rotate(720deg); opacity: 0.5; }
+}
+
 /* ═══════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════ */
@@ -1376,7 +1538,7 @@ body {
 <nav class="nav" id="nav">
   <div class="nav-inner">
     <a href="#" class="nav-logo">
-      <div class="nav-logo-mark">🧠</div>
+      <div class="nav-logo-mark">⚽</div>
       <div class="nav-logo-text">FOOT<span>BRAIN</span></div>
     </a>
     <ul class="nav-links">
@@ -1393,10 +1555,88 @@ body {
 <section class="hero" id="hero">
   <canvas id="hero-canvas"></canvas>
   <div class="hero-geo">
-    <div class="geo-circle-1"></div>
-    <div class="geo-circle-2"></div>
-    <div class="geo-circle-3"></div>
-    <div class="geo-line"></div>
+    <!-- スタジアム照明 -->
+    <div class="stadium-light light-1"></div>
+    <div class="stadium-light light-2"></div>
+    <div class="stadium-light light-3"></div>
+    <!-- サッカーピッチ（遠近感パース） -->
+    <svg class="pitch-svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="pitchGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(0,200,255,0)"/>
+          <stop offset="60%" stop-color="rgba(0,200,255,0.04)"/>
+          <stop offset="100%" stop-color="rgba(0,232,122,0.08)"/>
+        </linearGradient>
+        <linearGradient id="grassStripes" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(0,232,122,0)"/>
+          <stop offset="100%" stop-color="rgba(0,232,122,0.06)"/>
+        </linearGradient>
+      </defs>
+      <!-- 芝のストライプ（パース） -->
+      <polygon points="0,800 1200,800 850,400 350,400" fill="url(#pitchGrad)"/>
+      <polygon points="50,800 1150,800 830,440 370,440" fill="url(#grassStripes)" opacity="0.4"/>
+      <polygon points="150,800 1050,800 800,490 400,490" fill="url(#grassStripes)" opacity="0.5"/>
+      <polygon points="250,800 950,800 770,540 430,540" fill="url(#grassStripes)" opacity="0.6"/>
+      <!-- ピッチライン（外周） -->
+      <polygon points="0,800 1200,800 850,400 350,400" stroke="rgba(0,200,255,0.18)" stroke-width="1.5" fill="none"/>
+      <!-- センターライン -->
+      <line x1="600" y1="800" x2="600" y2="400" stroke="rgba(0,200,255,0.18)" stroke-width="1.5"/>
+      <!-- センターサークル（楕円でパース） -->
+      <ellipse cx="600" cy="600" rx="120" ry="40" stroke="rgba(0,200,255,0.22)" stroke-width="1.5" fill="none"/>
+      <!-- ペナルティエリア（手前） -->
+      <polygon points="400,800 800,800 760,690 440,690" stroke="rgba(0,200,255,0.18)" stroke-width="1.5" fill="none"/>
+    </svg>
+    <!-- 巨大なサッカーボール（背景装飾） -->
+    <div class="big-ball">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="ballGrad" cx="35%" cy="30%">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.95)"/>
+            <stop offset="100%" stop-color="rgba(180,200,220,0.4)"/>
+          </radialGradient>
+        </defs>
+        <circle cx="100" cy="100" r="92" fill="url(#ballGrad)" stroke="rgba(13,27,62,0.3)" stroke-width="1"/>
+        <!-- 五角形パターン -->
+        <polygon points="100,40 130,62 118,98 82,98 70,62" fill="#0d1b3e"/>
+        <polygon points="62,108 90,130 78,160 50,150 42,118" fill="#0d1b3e" opacity="0.9"/>
+        <polygon points="138,108 158,118 150,150 122,160 110,130" fill="#0d1b3e" opacity="0.9"/>
+        <!-- 接続線 -->
+        <line x1="100" y1="40" x2="100" y2="20" stroke="#0d1b3e" stroke-width="2" opacity="0.6"/>
+        <line x1="70" y1="62" x2="50" y2="50" stroke="#0d1b3e" stroke-width="2" opacity="0.6"/>
+        <line x1="130" y1="62" x2="150" y2="50" stroke="#0d1b3e" stroke-width="2" opacity="0.6"/>
+        <line x1="62" y1="108" x2="42" y2="118" stroke="#0d1b3e" stroke-width="2" opacity="0.6"/>
+        <line x1="138" y1="108" x2="158" y2="118" stroke="#0d1b3e" stroke-width="2" opacity="0.6"/>
+      </svg>
+    </div>
+    <!-- ゴールネット（左下） -->
+    <svg class="goal-net" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+      <g stroke="rgba(0,200,255,0.18)" stroke-width="0.8" fill="none">
+        <!-- ネットの斜め線 -->
+        <line x1="0" y1="0" x2="60" y2="200"/>
+        <line x1="30" y1="0" x2="90" y2="200"/>
+        <line x1="60" y1="0" x2="120" y2="200"/>
+        <line x1="90" y1="0" x2="150" y2="200"/>
+        <line x1="120" y1="0" x2="180" y2="200"/>
+        <line x1="150" y1="0" x2="210" y2="200"/>
+        <line x1="180" y1="0" x2="240" y2="200"/>
+        <line x1="210" y1="0" x2="270" y2="200"/>
+        <line x1="240" y1="0" x2="300" y2="200"/>
+        <!-- 反対斜め -->
+        <line x1="0" y1="200" x2="60" y2="0"/>
+        <line x1="30" y1="200" x2="90" y2="0"/>
+        <line x1="60" y1="200" x2="120" y2="0"/>
+        <line x1="90" y1="200" x2="150" y2="0"/>
+        <line x1="120" y1="200" x2="180" y2="0"/>
+        <line x1="150" y1="200" x2="210" y2="0"/>
+        <line x1="180" y1="200" x2="240" y2="0"/>
+        <line x1="210" y1="200" x2="270" y2="0"/>
+        <line x1="240" y1="200" x2="300" y2="0"/>
+        <!-- ゴール枠 -->
+        <line x1="0" y1="0" x2="300" y2="0" stroke="rgba(0,200,255,0.4)" stroke-width="2.5"/>
+        <line x1="0" y1="0" x2="0" y2="200" stroke="rgba(0,200,255,0.4)" stroke-width="2.5"/>
+        <line x1="300" y1="0" x2="300" y2="200" stroke="rgba(0,200,255,0.4)" stroke-width="2.5"/>
+      </g>
+    </svg>
     <div class="geo-dot geo-dot-1"></div>
     <div class="geo-dot geo-dot-2"></div>
     <div class="geo-dot geo-dot-3"></div>
@@ -1408,7 +1648,7 @@ body {
       <div class="hero-left">
         <div class="hero-eyebrow">
           <div class="hero-eyebrow-dot"></div>
-          BRAIN SCIENCE × FOOTBALL
+          ⚽ BRAIN SCIENCE × FOOTBALL
         </div>
         <h1 class="hero-headline">
           <span class="accent">メンタル</span>が、<br>
@@ -1490,21 +1730,23 @@ body {
   </div>
 </section>
 
+<div class="field-divider"></div>
+
 <!-- ═══ TRUST BAR ═══ -->
 <div class="trust">
   <div class="trust-inner container">
     <div class="trust-item reveal">
-      <div class="trust-category">J LEAGUE</div>
+      <div class="trust-category">⚽ J LEAGUE</div>
       <div class="trust-icon">🏟️</div>
       <div class="trust-label">Jリーグ</div>
     </div>
     <div class="trust-item reveal reveal-delay-1">
-      <div class="trust-category">F LEAGUE</div>
+      <div class="trust-category">⚽ F LEAGUE</div>
       <div class="trust-icon">⚽</div>
       <div class="trust-label">Fリーグ</div>
     </div>
     <div class="trust-item reveal reveal-delay-2">
-      <div class="trust-category">WOMEN'S</div>
+      <div class="trust-category">⚽ WOMEN'S</div>
       <div class="trust-icon">👩</div>
       <div class="trust-label">女子アマチュアチーム</div>
     </div>
@@ -2162,7 +2404,7 @@ body {
     <div class="footer-grid">
       <div class="footer-brand">
         <a href="#" class="footer-logo">
-          <div class="footer-logo-mark">🧠</div>
+          <div class="footer-logo-mark">⚽</div>
           <div class="footer-logo-text">FOOT<span>BRAIN</span></div>
         </a>
         <div class="footer-desc">
